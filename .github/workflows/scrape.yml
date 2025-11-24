@@ -18,6 +18,12 @@ jobs:
 
     steps:
       # ---------------------------------------------------------
+      # Checkout the repo containing the workflow and scripts
+      # ---------------------------------------------------------
+      - name: Checkout workflow repository
+        uses: actions/checkout@v4
+
+      # ---------------------------------------------------------
       # Clone the PRIVATE repo using PAT
       # ---------------------------------------------------------
       - name: Clone private repository

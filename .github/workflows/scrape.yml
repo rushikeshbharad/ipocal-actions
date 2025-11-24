@@ -60,7 +60,7 @@ jobs:
       - name: Run scraper
         run: |
           cd repo
-          xvfb-run python scraper.py
+          xvfb-run python scraper.py | tee scraper_output.log
 
       # ---------------------------------------------------------
       # Commit & push changes to PRIVATE repo (if any)
@@ -84,12 +84,14 @@ jobs:
       # ---------------------------------------------------------
       - name: Send success notification
         if: ${{ success() }}
+        env:
+          CURRENT_SYMBOLS: ${{ steps.extract_symbols.outputs.symbols }}
         run: |
           curl -s -X POST \
             "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
             -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
-            -d text="✅ Scraper ran successfully"
-
+            -d text="✅ Scraper ran successfully. Current symbols: $CURRENT_SYMBOLS"
+        
       - name: Send failure notification
         if: ${{ failure() }}
         run: |

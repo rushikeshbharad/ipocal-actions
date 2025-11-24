@@ -1,0 +1,72 @@
+name: Scrape IPO Data (Private Repo)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 0 * * 1-5"
+    - cron: "30 3 * * 1-5"
+    - cron: "00 5 * * 1-5"
+    - cron: "30 6 * * 1-5"
+    - cron: "00 9 * * 1-5"
+    - cron: "30 10 * * 1-5"
+    - cron: "00 12 * * 1-5"
+    - cron: "30 13 * * 1-5"
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ---------------------------------------------------------
+      # Clone the PRIVATE repo using PAT
+      # ---------------------------------------------------------
+      - name: Clone private repository
+        run: |
+          git clone https://${{ secrets.PRIVATE_REPO_PAT }}@github.com/<OWNER>/<PRIVATE_REPO>.git repo
+        shell: bash
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      # ---------------------------------------------------------
+      # Install dependencies (from private repo)
+      # ---------------------------------------------------------
+      - name: Install Python dependencies
+        run: |
+          cd repo
+          pip install -r requirements.txt
+
+      - name: Install Playwright browsers and OS dependencies
+        run: |
+          cd repo
+          playwright install --with-deps chromium
+
+      - name: Install virtual display
+        run: sudo apt-get update && sudo apt-get install -y xvfb
+
+      # ---------------------------------------------------------
+      # Run scraper from PRIVATE repo
+      # ---------------------------------------------------------
+      - name: Run scraper
+        run: |
+          cd repo
+          xvfb-run python scraper.py
+
+      # ---------------------------------------------------------
+      # Commit & push changes to PRIVATE repo (if any)
+      # ---------------------------------------------------------
+      - name: Commit & push changes
+        run: |
+          cd repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if ! git diff --quiet; then
+            git add .
+            git commit -m "Automated scrape on $(date -u +'%Y-%m-%d %H:%M:%S')"
+            git push
+          else
+            echo "No changes to commit"
+          fi

@@ -82,8 +82,7 @@ jobs:
       - name: Extract Symbols
         id: extract_symbols
         run: |
-          cd repo
-          bash extract_symbols.sh
+          bash .github/workflows/extract_symbols.sh repo/scraper_output.log
 
       # ---------------------------------------------------------
       # Send Telegram notification based on success or failure

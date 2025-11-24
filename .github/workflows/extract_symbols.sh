@@ -1,4 +1,4 @@
 #!/bin/bash
 
-LAST_LINE=$(tail scraper_output.log)
+LAST_LINE=$(grep "Current symbols: " "$1" | tail -n 1)
 echo "symbols=$(echo $LAST_LINE | sed 's/Current symbols: //')" >> $GITHUB_OUTPUT

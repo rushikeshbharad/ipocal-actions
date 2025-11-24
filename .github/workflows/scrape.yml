@@ -83,7 +83,7 @@ jobs:
         id: extract_symbols
         run: |
           cd repo
-          bash ../.github/workflows/extract_symbols.sh
+          bash extract_symbols.sh
 
       # ---------------------------------------------------------
       # Send Telegram notification based on success or failure

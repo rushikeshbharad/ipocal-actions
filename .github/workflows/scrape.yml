@@ -78,3 +78,22 @@ jobs:
           else
             echo "No changes to commit"
           fi
+
+      # ---------------------------------------------------------
+      # Send Telegram notification based on success or failure
+      # ---------------------------------------------------------
+      - name: Send success notification
+        if: ${{ success() }}
+        run: |
+          curl -s -X POST \
+            "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d text="✅ Scraper ran successfully"
+
+      - name: Send failure notification
+        if: ${{ failure() }}
+        run: |
+          curl -s -X POST \
+            "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d text="❌ Scraper failed"

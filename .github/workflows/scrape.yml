@@ -25,6 +25,14 @@ jobs:
           git clone https://${{ secrets.PRIVATE_REPO_PAT }}@github.com/rushikeshbharad/ipocal.git repo
         shell: bash
 
+      # ---------------------------------------------------------
+      # Pull latest changes from the PRIVATE repo
+      # ---------------------------------------------------------
+      - name: Pull latest changes
+        run: |
+          cd repo
+          git pull
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -65,7 +73,7 @@ jobs:
 
           if ! git diff --quiet; then
             git add .
-            git commit -m "Automated scrape on $(date -u +'%Y-%m-%d %H:%M:%S')"
+            git commit -m "Automated scrape on $(date -u +'%Y-%m-%d %H:%M:%S')" -m "[skip ci]"
             git push
           else
             echo "No changes to commit"

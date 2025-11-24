@@ -22,7 +22,7 @@ jobs:
       # ---------------------------------------------------------
       - name: Clone private repository
         run: |
-          git clone https://${{ secrets.PRIVATE_REPO_PAT }}@github.com/<OWNER>/<PRIVATE_REPO>.git repo
+          git clone https://${{ secrets.PRIVATE_REPO_PAT }}@github.com/rushikeshbharad/ipocal.git repo
         shell: bash
 
       - name: Set up Python

@@ -1,0 +1,100 @@
+name: Scrape IPO Data (Private Repo)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "41 20 * * 0"
+    - cron: "41 20 28-31 * *"
+    - cron: "41 20 1 * *"
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ---------------------------------------------------------
+      # Checkout the repo containing the workflow and scripts
+      # ---------------------------------------------------------
+      - name: Checkout workflow repository
+        uses: actions/checkout@v4
+
+      # ---------------------------------------------------------
+      # Clone the PRIVATE repo using PAT
+      # ---------------------------------------------------------
+      - name: Clone private repository
+        run: |
+          git clone https://${{ secrets.PRIVATE_REPO_PAT }}@github.com/rushikeshbharad/ipocal.git repo
+        shell: bash
+
+      # ---------------------------------------------------------
+      # Pull latest changes from the PRIVATE repo
+      # ---------------------------------------------------------
+      - name: Pull latest changes
+        run: |
+          cd repo
+          git pull
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      # ---------------------------------------------------------
+      # Install dependencies (from private repo)
+      # ---------------------------------------------------------
+      - name: Install Python dependencies
+        run: |
+          cd repo
+          pip install -r requirements.txt
+
+      - name: Install Playwright browsers and OS dependencies
+        run: |
+          cd repo
+          playwright install --with-deps chromium
+
+      - name: Install virtual display
+        run: sudo apt-get update && sudo apt-get install -y xvfb
+
+      # ---------------------------------------------------------
+      # Run scraper from PRIVATE repo
+      # ---------------------------------------------------------
+      - name: Run scraper
+        run: |
+          cd repo
+          xvfb-run python holiday-scraper.py
+
+      # ---------------------------------------------------------
+      # Commit & push changes to PRIVATE repo (if any)
+      # ---------------------------------------------------------
+      - name: Commit & push changes
+        run: |
+          cd repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if ! git diff --quiet; then
+            git add .
+            git commit -m "Automated scrape on $(date -u +'%Y-%m-%d %H:%M:%S')"
+            git push
+          else
+            echo "No changes to commit"
+          fi
+
+      # ---------------------------------------------------------
+      # Send Telegram notification based on success or failure
+      # ---------------------------------------------------------
+      - name: Send success notification
+        if: ${{ success() }}
+        run: |
+          curl -s -X POST \
+            "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d text="✅ Holidays are saved successfully"
+
+      - name: Send failure notification
+        if: ${{ failure() }}
+        run: |
+          curl -s -X POST \
+            "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d text="❌ Failed to save holidays"

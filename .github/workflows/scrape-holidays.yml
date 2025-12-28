@@ -1,4 +1,4 @@
-name: Scrape IPO Data (Private Repo)
+name: Scrape Holidays (Private Repo)
 
 on:
   workflow_dispatch:

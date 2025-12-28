@@ -3,9 +3,9 @@ name: Scrape Holidays (Private Repo)
 on:
   workflow_dispatch:
   schedule:
-    - cron: "41 20 * * 0"
-    - cron: "41 20 28-31 * *"
-    - cron: "41 20 1 * *"
+    - cron: "41 22 * * 0"
+    - cron: "41 22 28-31 * *"
+    - cron: "41 22 1 * *"
 
 jobs:
   scrape:

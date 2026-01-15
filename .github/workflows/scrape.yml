@@ -66,7 +66,7 @@ jobs:
       - name: Run scraper
         run: |
           cd repo
-          xvfb-run python scraper.py | tee scraper_output.log
+          xvfb-run python ra-scraper.py | tee scraper_output.log
 
       # ---------------------------------------------------------
       # Commit & push changes to PRIVATE repo (if any)

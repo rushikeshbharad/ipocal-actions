@@ -14,7 +14,7 @@ on:
 
 jobs:
   scrape:
-    runs-on: windows-latest
+    runs-on: macos-latest
     defaults:
       run:
         shell: bash
@@ -58,8 +58,9 @@ jobs:
       - name: Install Playwright browsers and OS dependencies
         run: |
           cd repo
-          playwright install --with-deps chromium
+          playwright install chromium
 
+#      Keeping commented, ubuntu needs `xvfb-runs python ...`
 #      - name: Install virtual display
 #        run: sudo apt-get update && sudo apt-get install -y xvfb
 
@@ -111,7 +112,7 @@ jobs:
           curl -s -X POST \
             "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
             -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
-            -d text="✅ Scraper ran successfully.%0ACurrent MU symbols: $MU_CURRENT_SYMBOLS%0ACurrent RA symbols: $RA_CURRENT_SYMBOLS"
+            -d text="✅ Scraper ran successfully.%0A%0ACurrent MU symbols: $MU_CURRENT_SYMBOLS%0A%0ACurrent RA symbols: $RA_CURRENT_SYMBOLS"
 
       - name: Send failure notification
         if: ${{ failure() }}

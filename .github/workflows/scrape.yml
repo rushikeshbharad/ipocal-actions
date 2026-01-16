@@ -66,7 +66,7 @@ jobs:
       - name: Run scraper
         run: |
           cd repo
-          xvfb-run python mu-scraper.py | tee mu_scraper_output.log
+          python mu-scraper.py | tee mu_scraper_output.log
           xvfb-run python ra-scraper.py | tee ra_scraper_output.log
 
       # ---------------------------------------------------------

@@ -14,7 +14,7 @@ on:
 
 jobs:
   scrape:
-    runs-on: macos-latest
+    runs-on: windows-latest
     defaults:
       run:
         shell: bash

@@ -14,7 +14,10 @@ on:
 
 jobs:
   scrape:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
 
     steps:
       # ---------------------------------------------------------
@@ -57,8 +60,8 @@ jobs:
           cd repo
           playwright install --with-deps chromium
 
-      - name: Install virtual display
-        run: sudo apt-get update && sudo apt-get install -y xvfb
+#      - name: Install virtual display
+#        run: sudo apt-get update && sudo apt-get install -y xvfb
 
       # ---------------------------------------------------------
       # Run scraper from PRIVATE repo
@@ -67,7 +70,7 @@ jobs:
         run: |
           cd repo
           python mu-scraper.py | tee mu_scraper_output.log
-          xvfb-run python ra-scraper.py | tee ra_scraper_output.log
+          python ra-scraper.py | tee ra_scraper_output.log
 
       # ---------------------------------------------------------
       # Commit & push changes to PRIVATE repo (if any)

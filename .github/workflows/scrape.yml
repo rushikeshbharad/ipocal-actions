@@ -66,7 +66,8 @@ jobs:
       - name: Run scraper
         run: |
           cd repo
-          xvfb-run python ra-scraper.py | tee scraper_output.log
+          xvfb-run python mu-scraper.py | tee mu_scraper_output.log
+          xvfb-run python ra-scraper.py | tee ra_scraper_output.log
 
       # ---------------------------------------------------------
       # Commit & push changes to PRIVATE repo (if any)
@@ -85,10 +86,15 @@ jobs:
             echo "No changes to commit"
           fi
 
-      - name: Extract Symbols
-        id: extract_symbols
+      - name: Extract Mu Symbols
+        id: mu_extract_symbols
         run: |
-          bash .github/workflows/extract_symbols.sh repo/scraper_output.log
+          bash .github/workflows/extract_symbols.sh repo/mu_scraper_output.log
+
+      - name: Extract Ra Symbols
+        id: ra_extract_symbols
+        run: |
+          bash .github/workflows/extract_symbols.sh repo/ra_scraper_output.log
 
       # ---------------------------------------------------------
       # Send Telegram notification based on success or failure
@@ -96,13 +102,14 @@ jobs:
       - name: Send success notification
         if: ${{ success() }}
         env:
-          CURRENT_SYMBOLS: ${{ steps.extract_symbols.outputs.symbols }}
+          MU_CURRENT_SYMBOLS: ${{ steps.mu_extract_symbols.outputs.symbols }}
+          RA_CURRENT_SYMBOLS: ${{ steps.ra_extract_symbols.outputs.symbols }}
         run: |
           curl -s -X POST \
             "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
             -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
-            -d text="✅ Scraper ran successfully. Current symbols: $CURRENT_SYMBOLS"
-        
+            -d text="✅ Scraper ran successfully.%0ACurrent MU symbols: $MU_CURRENT_SYMBOLS%0ACurrent RA symbols: $RA_CURRENT_SYMBOLS"
+
       - name: Send failure notification
         if: ${{ failure() }}
         run: |
